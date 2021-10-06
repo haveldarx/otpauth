@@ -13,16 +13,20 @@ class _HomeScreenState extends State<HomeScreen> {
   
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text("Home Screen"),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: ()async{
-          await _auth.signOut();
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
-        },
-        child: Icon(Icons.logout),
+    return WillPopScope(onWillPop:() async => false,child: Scaffold(
+        appBar: AppBar(title: Text('SOSKRU'),
+        centerTitle: true,
+        backgroundColor: Colors.pink[200],),
+        body: Center(
+          child: Text("Home Screen"),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: ()async{
+            await _auth.signOut();
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+          },
+          child: Icon(Icons.logout),
+        ),
       ),
     );
   }
