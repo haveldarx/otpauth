@@ -55,6 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
     } on FirebaseAuthException catch (e) {
+      print(e.message);
       setState(() {
         showLoading = false;
       });
@@ -160,11 +161,11 @@ class _LoginScreenState extends State<LoginScreen> {
         Spacer(flex: 1,),
         TextField(
   //         length: 6,
-  // width: MediaQuery.of(context).size.width,
+  //          width: MediaQuery.of(context).size.width,
   
-  // fieldWidth: 50,
-  // style: TextStyle(
-  //   fontSize: 17
+  //         fieldWidth: 50,
+  //         style: TextStyle(
+  //         fontSize: 17
   // ),
   // textFieldAlignment: MainAxisAlignment.spaceAround,
   // fieldStyle: FieldStyle.box,
@@ -174,8 +175,8 @@ class _LoginScreenState extends State<LoginScreen> {
   // },
           controller: otpController,
           decoration: InputDecoration(
-            hintText: "Enter OTP",
-          ),
+            hintText: "Enter OTP",),
+          
         ),
         SizedBox(
           height: 16,
@@ -184,7 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
           onPressed: () async {
             PhoneAuthCredential phoneAuthCredential =
                 PhoneAuthProvider.credential(
-                    verificationId: verificationId, smsCode: otpController.toString());
+                    verificationId: verificationId, smsCode:otpController.toString());
 
             signInWithPhoneAuthCredential(phoneAuthCredential);
           },
