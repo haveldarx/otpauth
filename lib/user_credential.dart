@@ -1,4 +1,7 @@
 import "package:flutter/material.dart";
+import 'package:otpfv/database.dart';
+import 'package:otpfv/model.dart';
+import 'package:otpfv/screens/home_screen.dart';
 
 
 import 'fade_animation.dart';
@@ -10,6 +13,9 @@ class UserCred extends StatefulWidget {
 }
 
 class _UserCredState extends State<UserCred> {
+  final userName = TextEditingController();
+  final userEmail = TextEditingController();
+  final userPhone = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,7 +105,8 @@ class _UserCredState extends State<UserCred> {
                                   Expanded(
                                     child: Container(
                                       margin: const EdgeInsets.only(left: 10),
-                                      child: TextFormField(
+                                      child: TextField(
+                                        controller:userName ,
                                         maxLines: 1,
                                         decoration: const InputDecoration(
                                           hintText: "Name ",
@@ -140,6 +147,7 @@ class _UserCredState extends State<UserCred> {
                                     child: Container(
                                       margin: const EdgeInsets.only(left: 10),
                                       child: TextFormField(
+                                        controller: userEmail,
                                         maxLines: 1,
                                         decoration: const InputDecoration(
                                           hintText:" Email",
@@ -179,7 +187,8 @@ class _UserCredState extends State<UserCred> {
                                   Expanded(
                                     child: Container(
                                       margin: const EdgeInsets.only(left: 10),
-                                      child: TextFormField(
+                                      child: TextField(
+                                        controller: userPhone,
                                         maxLines: 1,
                                         decoration: const InputDecoration(
                                           hintText:"Phone Number ",
@@ -197,7 +206,11 @@ class _UserCredState extends State<UserCred> {
                         FadeAnimation(
                           2,
                           ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              OurUser user = OurUser(email: userEmail.text,phoneNumber: userPhone.text,fullName: userName.text);
+                               OurDatabse().createUser(user); 
+                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+                            },
                             style: ElevatedButton.styleFrom(
                                 onPrimary: Colors.pinkAccent,
                                 shadowColor: Colors.pinkAccent,

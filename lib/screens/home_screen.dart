@@ -16,9 +16,21 @@ class _HomeScreenState extends State<HomeScreen> {
     return WillPopScope(onWillPop:() async => false,child: Scaffold(
         appBar: AppBar(title: Text('SOSKRU'),
         centerTitle: true,
-        backgroundColor: Colors.pink[200],),
-        body: Center(
-          child: Text("Home Screen"),
+        backgroundColor: Colors.redAccent[400],),
+        
+        body: Container(
+          
+  decoration: BoxDecoration(
+    image: DecorationImage(
+      image: AssetImage("images/splashBg.jpg"),
+      fit: BoxFit.cover,
+    ),
+  ),
+          child: Center(
+            
+            child: Text("Home Screen"),
+            
+          ),
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: ()async{

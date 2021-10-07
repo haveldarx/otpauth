@@ -51,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
       });
 
       if(authCredential.user != null){
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> HomeScreen()));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> UserCred()));
       }
 
     } on FirebaseAuthException catch (e) {
@@ -83,16 +83,14 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   getMobileFormWidget(context) {
-    return Scaffold(
-      
-      body: Column(
+    return  Column(
         children: [
           Image.asset('images/icon.png',scale: 3,),
-          Text("Login",style: TextStyle(fontSize: 30),),
+          Text("Login",style: TextStyle(fontSize: 30,color: Colors.white),),
           SizedBox(height:40),
           Row(
             children: [
-              Text("Enter phone number",style: TextStyle(fontSize: 30),),
+              Text("Enter phone number",style: TextStyle(fontSize: 30,color: Colors.white),),
             ],
           ),
           TextField(
@@ -102,12 +100,15 @@ class _LoginScreenState extends State<LoginScreen> {
             decoration: InputDecoration(
               hintMaxLines: 10,
               hintText: "Phone Number",
+              hintStyle: TextStyle(color: Colors.white
+              ) ,
             ),
           ),
           SizedBox(
             height: 16,
           ),
           TextButton(
+            
             onPressed: () async {
               setState(() {
                 showLoading = true;
@@ -143,8 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           Spacer(),
         ],
-      ),
-    );
+      );
   }
 
   getOtpFormWidget(context) {
@@ -184,7 +184,7 @@ class _LoginScreenState extends State<LoginScreen> {
           onPressed: () async {
             PhoneAuthCredential phoneAuthCredential =
                 PhoneAuthProvider.credential(
-                    verificationId: verificationId, smsCode: otpController.toString());
+                    verificationId: verificationId, smsCode: otpController.text);
 
             signInWithPhoneAuthCredential(phoneAuthCredential);
           },
@@ -203,10 +203,17 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('SOSKRU'),
-      backgroundColor: Colors.pink[200],
+      backgroundColor: Colors.redAccent[400],
       centerTitle: true,),
         key: _scaffoldKey,
-        body: Container(
+        body:Container(
+  decoration: BoxDecoration(
+    image: DecorationImage(
+      image: AssetImage("images/splashBg.jpg"),
+      fit: BoxFit.cover,
+    ),
+  ),
+
           child: showLoading
               ? Center(
                   child: CircularProgressIndicator(),

@@ -9,6 +9,7 @@ class OurDatabse{
       await _firestore.collection('users').doc(user.uid).set({
         'fullname': user.fullName,
         'email' : user.email,
+        'phone' : user.phoneNumber,
         'accountcreated' : user.timestamp,
         
 
