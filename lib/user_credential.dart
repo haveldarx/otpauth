@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import 'package:simple_animations/simple_animations.dart';
+
 
 import 'fade_animation.dart';
 class UserCred extends StatefulWidget {
@@ -17,12 +17,13 @@ class _UserCredState extends State<UserCred> {
         width: double.infinity,
         decoration: BoxDecoration(
             gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
                 colors: [
               // Colors.purple,
-              Colors.purple.shade600,
-              Colors.deepPurpleAccent,
+              Colors.pink
+              .shade200,
+              Colors.pinkAccent,
             ])),
         child: Column(
           children: [
@@ -31,7 +32,7 @@ class _UserCredState extends State<UserCred> {
                 child:  FadeAnimation(
                   2,
                   Text(
-                    "Slakosta",
+                    "Sos Kru",
                     style: TextStyle(
                       fontSize: 35,
                       fontWeight: FontWeight.bold,
@@ -62,12 +63,12 @@ class _UserCredState extends State<UserCred> {
                             child: const FadeAnimation(
                               2,
                               Text(
-                                "Login",
+                                "Enter your details",
                                 style: TextStyle(
                                     fontSize: 35,
                                     color: Colors.black87,
                                     letterSpacing: 2,
-                                    fontFamily: "Lobster"),
+                                    ),
                               ),
                             )),
                         FadeAnimation(
@@ -81,10 +82,50 @@ class _UserCredState extends State<UserCred> {
                                   horizontal: 15, vertical: 5),
                               decoration: BoxDecoration(
                                   border: Border.all(
-                                      color: Colors.purpleAccent, width: 1),
+                                      color: Colors.pinkAccent, width: 1),
                                   boxShadow: const [
                                     BoxShadow(
-                                        color: Colors.purpleAccent,
+                                        color: Colors.pinkAccent,
+                                        blurRadius: 10,
+                                        offset: Offset(1, 1)),
+                                  ],
+                                  color: Colors.white,
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(20))),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  const Icon(Icons.person_outlined),
+                                  Expanded(
+                                    child: Container(
+                                      margin: const EdgeInsets.only(left: 10),
+                                      child: TextFormField(
+                                        maxLines: 1,
+                                        decoration: const InputDecoration(
+                                          hintText: "Name ",
+                                          border: InputBorder.none,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )),
+                        ),
+                        FadeAnimation(
+                          2,
+                          Container(
+                              width: double.infinity,
+                              height: 70,
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 20),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 15, vertical: 5),
+                              decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: Colors.pinkAccent, width: 1),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                        color: Colors.pinkAccent,
                                         blurRadius: 10,
                                         offset: Offset(1, 1)),
                                   ],
@@ -101,7 +142,7 @@ class _UserCredState extends State<UserCred> {
                                       child: TextFormField(
                                         maxLines: 1,
                                         decoration: const InputDecoration(
-                                          hintText: " E-mail ...",
+                                          hintText:" Email",
                                           border: InputBorder.none,
                                         ),
                                       ),
@@ -121,10 +162,10 @@ class _UserCredState extends State<UserCred> {
                                   horizontal: 15, vertical: 5),
                               decoration: BoxDecoration(
                                   border: Border.all(
-                                      color: Colors.purpleAccent, width: 1),
+                                      color: Colors.pinkAccent, width: 1),
                                   boxShadow: const [
                                     BoxShadow(
-                                        color: Colors.purpleAccent,
+                                        color: Colors.pinkAccent,
                                         blurRadius: 10,
                                         offset: Offset(1, 1)),
                                   ],
@@ -134,14 +175,14 @@ class _UserCredState extends State<UserCred> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  const Icon(Icons.password_outlined),
+                                  const Icon(Icons.phone_android),
                                   Expanded(
                                     child: Container(
                                       margin: const EdgeInsets.only(left: 10),
                                       child: TextFormField(
                                         maxLines: 1,
                                         decoration: const InputDecoration(
-                                          hintText:" Password ...",
+                                          hintText:"Phone Number ",
                                           border: InputBorder.none,
                                         ),
                                       ),
@@ -158,18 +199,15 @@ class _UserCredState extends State<UserCred> {
                           ElevatedButton(
                             onPressed: () {},
                             style: ElevatedButton.styleFrom(
-                                onPrimary: Colors.purpleAccent,
-                                shadowColor: Colors.purpleAccent,
+                                onPrimary: Colors.pinkAccent,
+                                shadowColor: Colors.pinkAccent,
                                 elevation: 18,
                                 padding: EdgeInsets.zero,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(20))),
                             child: Ink(
                               decoration: BoxDecoration(
-                                  gradient: const LinearGradient(colors: [
-                                    Colors.purpleAccent,
-                                    Colors.deepPurpleAccent
-                                  ]),
+                                  color: Colors.pinkAccent,
                                   borderRadius: BorderRadius.circular(20)),
                               child: Container(
                                 width: 200,
@@ -186,45 +224,8 @@ class _UserCredState extends State<UserCred> {
                             ),
                           ),
                         ),
-                        FadeAnimation(
-                          2,
-                          Container(
-                              width: double.infinity,
-                              height: 70,
-                              alignment: Alignment.center,
-                              margin: const EdgeInsets.only(top: 10),
-                              child: const Text(
-                                " Subscrib in Scosial Media App ",
-                                style: TextStyle(
-                                    color: Colors.black54, fontSize: 15),
-                              )),
-                        ),
-                        FadeAnimation(
-                          2,
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(
-                                "images/Facebook.png",
-                                width: 80,
-                              ),
-                              const SizedBox(
-                                width: 15,
-                              ),
-                              Image.asset(
-                                "images/Instagram.png",
-                                width: 80,
-                              ),
-                              const SizedBox(
-                                width: 15,
-                              ),
-                              Image.asset(
-                                "images/Tiktok.png",
-                                width: 80,
-                              ),
-                            ],
-                          ),
-                        )
+                        
+                        
                       ],
                     ),
                   )),

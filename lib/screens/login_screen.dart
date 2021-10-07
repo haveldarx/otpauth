@@ -26,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final phoneController = TextEditingController();
   final otpController = TextEditingController();
-  late String pinAuth;
+  // late String pinAuth;
   FirebaseAuth _auth = FirebaseAuth.instance;
 
   late String verificationId;
@@ -51,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
       });
 
       if(authCredential.user != null){
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> UserCred()));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> HomeScreen()));
       }
 
     } on FirebaseAuthException catch (e) {
@@ -158,24 +158,24 @@ class _LoginScreenState extends State<LoginScreen> {
         fontWeight: FontWeight.w600 ),),
         Text("Enter otp To verify phone"),
         Spacer(flex: 1,),
-        OTPTextField(
-          length: 6,
-  width: MediaQuery.of(context).size.width,
+        TextField(
+  //         length: 6,
+  // width: MediaQuery.of(context).size.width,
   
-  fieldWidth: 50,
-  style: TextStyle(
-    fontSize: 17
-  ),
-  textFieldAlignment: MainAxisAlignment.spaceAround,
-  fieldStyle: FieldStyle.box,
-  onCompleted: (pin) {
-    pinAuth = pin;
-    print("Completed: " + pin);
-  },
-          // controller: otpController,
-          // decoration: InputDecoration(
-          //   hintText: "Enter OTP",
-          // ),
+  // fieldWidth: 50,
+  // style: TextStyle(
+  //   fontSize: 17
+  // ),
+  // textFieldAlignment: MainAxisAlignment.spaceAround,
+  // fieldStyle: FieldStyle.box,
+  // onCompleted: (pin) {
+  //   pinAuth = pin;
+  //   print("Completed: " + pin);
+  // },
+          controller: otpController,
+          decoration: InputDecoration(
+            hintText: "Enter OTP",
+          ),
         ),
         SizedBox(
           height: 16,
@@ -184,7 +184,7 @@ class _LoginScreenState extends State<LoginScreen> {
           onPressed: () async {
             PhoneAuthCredential phoneAuthCredential =
                 PhoneAuthProvider.credential(
-                    verificationId: verificationId, smsCode: pinAuth);
+                    verificationId: verificationId, smsCode: otpController.toString());
 
             signInWithPhoneAuthCredential(phoneAuthCredential);
           },
