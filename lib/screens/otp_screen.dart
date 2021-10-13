@@ -1,4 +1,4 @@
-import 'dart:async';
+
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -43,6 +43,7 @@ class _OtpScreenState extends State<OtpScreen> {
       }
 
     } on FirebaseAuthException catch (e) {
+      print(e);
       setState(() {
         showLoading = false;
       });

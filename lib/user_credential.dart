@@ -1,10 +1,15 @@
+
+import 'package:firebase_auth/firebase_auth.dart';
 import "package:flutter/material.dart";
+import 'package:otpfv/camera.dart';
 import 'package:otpfv/database.dart';
 import 'package:otpfv/model.dart';
 import 'package:otpfv/screens/home_screen.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'fade_animation.dart';
+
 class UserCred extends StatefulWidget {
   UserCred({Key? key}) : super(key: key);
 
@@ -13,6 +18,8 @@ class UserCred extends StatefulWidget {
 }
 
 class _UserCredState extends State<UserCred> {
+  FirebaseAuth _auth = FirebaseAuth.instance;
+// late UserCredential authCredential;
   final userName = TextEditingController();
   final userEmail = TextEditingController();
   final userPhone = TextEditingController();
@@ -27,26 +34,28 @@ class _UserCredState extends State<UserCred> {
                 end: Alignment.bottomRight,
                 colors: [
               // Colors.purple,
-              Colors.pink
-              .shade200,
+              Colors.pink.shade200,
               Colors.pinkAccent,
             ])),
         child: Column(
           children: [
             Container(
-                margin: const EdgeInsets.only(top: 100),
-                child:  FadeAnimation(
-                  2,
-                  Text(
-                    "Sos Kru",
-                    style: TextStyle(
-                      fontSize: 35,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      letterSpacing: 3,
+              margin: const EdgeInsets.only(top: 50),
+              child: FadeAnimation(
+                2,
+                CircleAvatar(
+                  radius: 50,
+                  child: ClipOval(
+                    child: Image.asset(
+                      'images/icon.png',
+                      height: 120,
+                      width: 120,
+                      fit: BoxFit.cover,
                     ),
                   ),
-                )),
+                ),
+              ),
+            ),
             Expanded(
               child: Container(
                   width: double.infinity,
@@ -65,16 +74,16 @@ class _UserCredState extends State<UserCred> {
                         Container(
                             // color: Colors.red,
                             alignment: Alignment.topLeft,
-                            margin: const EdgeInsets.only(left: 22, bottom: 20),
+                            margin: const EdgeInsets.only(left: 22, bottom: 10),
                             child: const FadeAnimation(
                               2,
                               Text(
                                 "Enter your details",
                                 style: TextStyle(
-                                    fontSize: 35,
-                                    color: Colors.black87,
-                                    letterSpacing: 2,
-                                    ),
+                                  fontSize: 30,
+                                  color: Colors.black87,
+                                  letterSpacing: 2,
+                                ),
                               ),
                             )),
                         FadeAnimation(
@@ -83,9 +92,9 @@ class _UserCredState extends State<UserCred> {
                               width: double.infinity,
                               height: 70,
                               margin: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 20),
+                                  horizontal: 10, vertical: 20),
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 15, vertical: 5),
+                                  horizontal: 15, vertical: 2),
                               decoration: BoxDecoration(
                                   border: Border.all(
                                       color: Colors.pinkAccent, width: 1),
@@ -106,7 +115,7 @@ class _UserCredState extends State<UserCred> {
                                     child: Container(
                                       margin: const EdgeInsets.only(left: 10),
                                       child: TextField(
-                                        controller:userName ,
+                                        controller: userName,
                                         maxLines: 1,
                                         decoration: const InputDecoration(
                                           hintText: "Name ",
@@ -124,7 +133,7 @@ class _UserCredState extends State<UserCred> {
                               width: double.infinity,
                               height: 70,
                               margin: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 20),
+                                  horizontal: 10, vertical: 10),
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 15, vertical: 5),
                               decoration: BoxDecoration(
@@ -150,7 +159,7 @@ class _UserCredState extends State<UserCred> {
                                         controller: userEmail,
                                         maxLines: 1,
                                         decoration: const InputDecoration(
-                                          hintText:" Email",
+                                          hintText: " Email",
                                           border: InputBorder.none,
                                         ),
                                       ),
@@ -165,7 +174,7 @@ class _UserCredState extends State<UserCred> {
                               width: double.infinity,
                               height: 70,
                               margin: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 20),
+                                  horizontal: 10, vertical: 10),
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 15, vertical: 5),
                               decoration: BoxDecoration(
@@ -191,7 +200,7 @@ class _UserCredState extends State<UserCred> {
                                         controller: userPhone,
                                         maxLines: 1,
                                         decoration: const InputDecoration(
-                                          hintText:"Phone Number ",
+                                          hintText: "Phone Number ",
                                           border: InputBorder.none,
                                         ),
                                       ),
@@ -203,16 +212,48 @@ class _UserCredState extends State<UserCred> {
                         const SizedBox(
                           height: 20,
                         ),
+                        Container(
+                            // color: Colors.red,
+                            alignment: Alignment.topLeft,
+                            margin: const EdgeInsets.only(left: 22),
+                            child: const FadeAnimation(
+                              2,
+                              Text(
+                                "Select profile picture",
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  color: Colors.black87,
+                                  letterSpacing: 2,
+                                ),
+                              ),
+                            )),
+                        Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          // child: FadeAnimation(2, Camera()),
+                        ),
                         FadeAnimation(
                           2,
                           ElevatedButton(
-                            onPressed: () {
-                              OurUser user = OurUser(email: userEmail.text,phoneNumber: userPhone.text,fullName: userName.text);
-                               OurDatabse().createUser(user); 
-                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+                            onPressed: () async {
+                              OurUser user = OurUser(
+                              uId: _auth.currentUser!.uid.toString(),
+                                email: userEmail.text,
+                                phoneNumber: userPhone.text,
+                                fullName: userName.text,
+                              );
+                              OurDatabse().createUser(user);
+                              final uIdSP = _auth.currentUser!.uid.toString();
+                              final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+                              sharedPreferences.setString('email', userEmail.text);
+                              sharedPreferences.setString('phone', userPhone.text);
+                              sharedPreferences.setString('uid', uIdSP);
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => HomeScreen()));
                             },
                             style: ElevatedButton.styleFrom(
-                                onPrimary: Colors.pinkAccent,
+                                onPrimary: Colors.redAccent[400],
                                 shadowColor: Colors.pinkAccent,
                                 elevation: 18,
                                 padding: EdgeInsets.zero,
@@ -237,8 +278,6 @@ class _UserCredState extends State<UserCred> {
                             ),
                           ),
                         ),
-                        
-                        
                       ],
                     ),
                   )),
@@ -249,4 +288,3 @@ class _UserCredState extends State<UserCred> {
     );
   }
 }
-

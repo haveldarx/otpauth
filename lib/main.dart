@@ -3,7 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:otpfv/screens/home_screen.dart';
 import 'package:otpfv/screens/login_screen.dart';
-import 'package:otpfv/screens/splash_screen.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,14 +35,14 @@ class _InitializerWidgetState extends State<InitializerWidget> {
 
   late FirebaseAuth _auth;
 
-  late User _user;
+ 
 
   bool isLoading = true;
 
 
   @override
   void initState() {
-    // TODO: implement initState
+
     super.initState();
     _auth = FirebaseAuth.instance;
      

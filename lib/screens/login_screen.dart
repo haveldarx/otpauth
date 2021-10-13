@@ -4,11 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:otpfv/database.dart';
 import 'package:otpfv/model.dart';
 import 'package:otpfv/screens/home_screen.dart';
-import 'package:otpfv/screens/otp_screen.dart';
-import 'package:otp_text_field/otp_field.dart';
-import 'package:otp_text_field/style.dart';
-import 'package:otpfv/user_credential.dart';
 
+import 'package:otpfv/user_credential.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../fade_animation.dart';
 
 enum MobileVerificationState {
   SHOW_MOBILE_FORM_STATE,
@@ -28,12 +28,21 @@ class _LoginScreenState extends State<LoginScreen> {
   final otpController = TextEditingController();
   // late String pinAuth;
   FirebaseAuth _auth = FirebaseAuth.instance;
+  String uid = '';
+  String finalEmail = '';
 
   late String verificationId;
   late UserCredential authCredential;
 
   bool showLoading = false;
-  OurUser _user =  OurUser();
+  // OurUser _user = OurUser();
+Future getValidationData() async {
+  final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+  var obtainedEmail = sharedPreferences.getString('email');
+  setState(() {
+    finalEmail = obtainedEmail.toString();
+  });
+}
 
   void signInWithPhoneAuthCredential(
       PhoneAuthCredential phoneAuthCredential) async {
@@ -44,134 +53,193 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final authCredential =
           await _auth.signInWithCredential(phoneAuthCredential);
-          
+      uid = (_auth.currentUser)!.uid;
 
       setState(() {
         showLoading = false;
       });
+      final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+            final  uisp =sharedPreferences.getString('uid');
+            
+            print('uid isssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss $uisp');
+      if(authCredential.user != null && _auth.currentUser!.uid.toString() == uisp){
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> HomeScreen()));
 
-      if(authCredential.user != null){
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> UserCred()));
       }
-
+       else if (authCredential.user != null){
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => UserCred()));
+       }
     } on FirebaseAuthException catch (e) {
+      print(e.toString());
       setState(() {
         showLoading = false;
       });
 
       // _scaffoldKey.currentState!
-          // .showSnackBar(SnackBar(content: Text(e.message)));
+      // .showSnackBar(SnackBar(content: Text(e.message)));
     }
   }
-  Future<String> signUpUser(String email, String password, String fullName) async {
+
+  Future<String> signUpUser(
+      String email, String password, String fullName) async {
     String retVal = "error";
     OurUser _user = OurUser();
-    try{
-      _user.uid = authCredential.user!.uid;
+    try {
+      _user.uId = uid;
       _user.email = authCredential.user!.uid;
       _user.fullName = fullName;
       String _returnString = await OurDatabse().createUser(_user);
-      if(_returnString == "success")
-      retVal = "success";
-    }on PlatformException catch (e) {
+      if (_returnString == "success") retVal = "success";
+    } on PlatformException catch (e) {
       retVal = e.message.toString();
-
-    }catch (e){
+    } catch (e) {
       print(e);
     }
     return retVal;
   }
 
   getMobileFormWidget(context) {
-    return  Column(
-        children: [
-          Image.asset('images/icon.png',scale: 3,),
-          Text("Login",style: TextStyle(fontSize: 30,color: Colors.white),),
-          SizedBox(height:40),
+    return Column(
+      children: [
+        FadeAnimation(
+            2,
+            Image.asset(
+              'images/icon.png',
+              scale: 3,
+            )),
+        FadeAnimation(
+            2,
+            Text(
+              "Login",
+              style: TextStyle(fontSize: 30, color: Colors.white),
+            )),
+        SizedBox(height: 40),
+        FadeAnimation(
+          2,
           Row(
             children: [
-              Text("Enter phone number",style: TextStyle(fontSize: 30,color: Colors.white),),
+              Text(
+                "Enter phone number",
+                style: TextStyle(fontSize: 30, color: Colors.white),
+              ),
             ],
           ),
-          TextField(
-            
-            autofocus: true,
-            controller: phoneController,
-            decoration: InputDecoration(
-              hintMaxLines: 10,
-              hintText: "Phone Number",
-              hintStyle: TextStyle(color: Colors.white
-              ) ,
-            ),
+        ),
+        FadeAnimation(
+          2,
+          Container(
+              width: double.infinity,
+              height: 70,
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+              decoration: BoxDecoration(
+                  border: Border.all(color: Colors.pinkAccent, width: 1),
+                  boxShadow: const [
+                    BoxShadow(
+                        color: Colors.pinkAccent,
+                        blurRadius: 10,
+                        offset: Offset(1, 1)),
+                  ],
+                  color: Colors.white,
+                  borderRadius: const BorderRadius.all(Radius.circular(20))),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const Icon(Icons.phone_android),
+                  Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.only(left: 10),
+                      child: TextField(
+                        controller: phoneController,
+                        maxLines: 1,
+                        decoration: const InputDecoration(
+                          hintText: "Phone Number ",
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              )),
+        ),
+        Spacer(
+          flex: 1,
+        ),
+        TextButton(
+          onPressed: () async {
+            setState(() {
+              showLoading = true;
+            });
+
+            await _auth.verifyPhoneNumber(
+              phoneNumber: phoneController.text,
+              verificationCompleted: (phoneAuthCredential) async {
+                setState(() {
+                  showLoading = false;
+                });
+                signInWithPhoneAuthCredential(phoneAuthCredential);
+              },
+              verificationFailed: (verificationFailed) async {
+                setState(() {
+                  showLoading = false;
+                });
+                // _scaffoldKey.currentState.showSnackBar(
+                // SnackBar(content: Text(verificationFailed.message)));
+              },
+              codeSent: (verificationId, resendingToken) async {
+                setState(() {
+                  showLoading = false;
+                  currentState = MobileVerificationState.SHOW_OTP_FORM_STATE;
+                  this.verificationId = verificationId;
+                });
+              },
+              codeAutoRetrievalTimeout: (verificationId) async {},
+            );
+          },
+          child: Text(
+            "SEND",
+            style: TextStyle(fontSize: 20),
           ),
-          SizedBox(
-            height: 16,
-          ),
-          TextButton(
-            
-            onPressed: () async {
-              setState(() {
-                showLoading = true;
-              });
-    
-              await _auth.verifyPhoneNumber(
-                phoneNumber: phoneController.text,
-                verificationCompleted: (phoneAuthCredential) async {
-                  setState(() {
-                    showLoading = false;
-                  });
-                  signInWithPhoneAuthCredential(phoneAuthCredential);
-                },
-                verificationFailed: (verificationFailed) async {
-                  setState(() {
-                    showLoading = false;
-                  });
-                  // _scaffoldKey.currentState.showSnackBar(
-                      // SnackBar(content: Text(verificationFailed.message)));
-                },
-                codeSent: (verificationId, resendingToken) async {
-                  setState(() {
-                    showLoading = false;
-                    currentState = MobileVerificationState.SHOW_OTP_FORM_STATE;
-                    this.verificationId = verificationId;
-                  });
-                },
-                codeAutoRetrievalTimeout: (verificationId) async {},
-              );
-            },
-            child: Text("SEND",style: TextStyle(fontSize: 20),),
-            
-          ),
-          Spacer(),
-        ],
-      );
+        ),
+        Spacer(
+          flex: 3,
+        ),
+      ],
+    );
   }
 
   getOtpFormWidget(context) {
-     return
-     Column(
+    return Column(
       children: [
-        Image.asset('images/otpScreen.jpeg',),
-        Text('Welcome to sos kru',style: TextStyle(fontSize: 30,
-        color: Colors.pink[200],
-        fontStyle: FontStyle.italic,
-        fontWeight: FontWeight.w600 ),),
+        Image.asset(
+          'images/otpScreen.jpeg',
+        ),
+        Text(
+          'Welcome to sos kru',
+          style: TextStyle(
+              fontSize: 30,
+              color: Colors.pink[200],
+              fontStyle: FontStyle.italic,
+              fontWeight: FontWeight.w600),
+        ),
         Text("Enter otp To verify phone"),
-        Spacer(flex: 1,),
+        Spacer(
+          flex: 1,
+        ),
         TextField(
-  //         length: 6,
-  // width: MediaQuery.of(context).size.width,
-  
-  // fieldWidth: 50,
-  // style: TextStyle(
-  //   fontSize: 17
-  // ),
-  // textFieldAlignment: MainAxisAlignment.spaceAround,
-  // fieldStyle: FieldStyle.box,
-  // onCompleted: (pin) {
-  //   pinAuth = pin;
-  //   print("Completed: " + pin);
-  // },
+          //         length: 6,
+          // width: MediaQuery.of(context).size.width,
+
+          // fieldWidth: 50,
+          // style: TextStyle(
+          //   fontSize: 17
+          // ),
+          // textFieldAlignment: MainAxisAlignment.spaceAround,
+          // fieldStyle: FieldStyle.box,
+          // onCompleted: (pin) {
+          //   pinAuth = pin;
+          //   print("Completed: " + pin);
+          // },
           controller: otpController,
           decoration: InputDecoration(
             hintText: "Enter OTP",
@@ -184,15 +252,22 @@ class _LoginScreenState extends State<LoginScreen> {
           onPressed: () async {
             PhoneAuthCredential phoneAuthCredential =
                 PhoneAuthProvider.credential(
-                    verificationId: verificationId, smsCode: otpController.text);
+                    verificationId: verificationId,
+                    smsCode: otpController.text);
 
             signInWithPhoneAuthCredential(phoneAuthCredential);
+            
+            
+            
+
+              
+            
           },
           child: Text("VERIFY"),
-          
-         
         ),
-        Spacer(flex: 3,),
+        Spacer(
+          flex: 3,
+        ),
       ],
     );
   }
@@ -202,18 +277,19 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('SOSKRU'),
-      backgroundColor: Colors.redAccent[400],
-      centerTitle: true,),
+        appBar: AppBar(
+          title: Text('SOSKRU'),
+          backgroundColor: Colors.redAccent[400],
+          centerTitle: true,
+        ),
         key: _scaffoldKey,
-        body:Container(
-  decoration: BoxDecoration(
-    image: DecorationImage(
-      image: AssetImage("images/splashBg.jpg"),
-      fit: BoxFit.cover,
-    ),
-  ),
-
+        body: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("images/splashBg.jpg"),
+              fit: BoxFit.cover,
+            ),
+          ),
           child: showLoading
               ? Center(
                   child: CircularProgressIndicator(),

@@ -1,8 +1,8 @@
-import 'dart:async';
+
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:otpfv/main.dart';
+
 import 'package:otpfv/screens/home_screen.dart';
 
 import 'login_screen.dart';
@@ -18,7 +18,7 @@ class _SplashScreenState extends State<SplashScreen> {
   FirebaseAuth auth = FirebaseAuth.instance;
   @override
   void initState() {
-    final user = auth.currentUser;
+    // final user = auth.currentUser;
     super.initState();
     InitializerWidget();
   }
@@ -45,14 +45,13 @@ class _InitializerWidgetState extends State<InitializerWidget> {
 
   late FirebaseAuth _auth;
 
-  late User _user;
+  // late User _user;
 
   bool isLoading = true;
 
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _auth = FirebaseAuth.instance;
      
