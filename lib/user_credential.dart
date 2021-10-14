@@ -229,7 +229,7 @@ class _UserCredState extends State<UserCred> {
                             )),
                         Padding(
                           padding: const EdgeInsets.all(20.0),
-                          // child: FadeAnimation(2, Camera()),
+                          child: FadeAnimation(2, Camera()),
                         ),
                         FadeAnimation(
                           2,
