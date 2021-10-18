@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import "package:flutter/material.dart";
 import 'package:flutter/services.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:otpfv/database.dart';
 import 'package:otpfv/model.dart';
 import 'package:otpfv/screens/home_screen.dart';
@@ -30,19 +31,20 @@ class _LoginScreenState extends State<LoginScreen> {
   FirebaseAuth _auth = FirebaseAuth.instance;
   String uid = '';
   String finalEmail = '';
-
   late String verificationId;
   late UserCredential authCredential;
-
+  String? phoneNumber;
+  PhoneNumber number = PhoneNumber(isoCode: 'IND');
   bool showLoading = false;
   // OurUser _user = OurUser();
-Future getValidationData() async {
-  final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-  var obtainedEmail = sharedPreferences.getString('email');
-  setState(() {
-    finalEmail = obtainedEmail.toString();
-  });
-}
+  Future getValidationData() async {
+    final SharedPreferences sharedPreferences =
+        await SharedPreferences.getInstance();
+    var obtainedEmail = sharedPreferences.getString('email');
+    setState(() {
+      finalEmail = obtainedEmail.toString();
+    });
+  }
 
   void signInWithPhoneAuthCredential(
       PhoneAuthCredential phoneAuthCredential) async {
@@ -58,17 +60,20 @@ Future getValidationData() async {
       setState(() {
         showLoading = false;
       });
-      final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-            final  uisp =sharedPreferences.getString('uid');
-            
-            print('uid isssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss $uisp');
-      if(authCredential.user != null && _auth.currentUser!.uid.toString() == uisp){
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> HomeScreen()));
+      final SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      final uisp = sharedPreferences.getString('uid');
 
+      print(
+          'uid isssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss $uisp');
+      if (authCredential.user != null &&
+          _auth.currentUser!.uid.toString() == uisp) {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => HomeScreen()));
+      } else if (authCredential.user != null) {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => UserCred()));
       }
-       else if (authCredential.user != null){
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => UserCred()));
-       }
     } on FirebaseAuthException catch (e) {
       print(e.toString());
       setState(() {
@@ -126,11 +131,11 @@ Future getValidationData() async {
           ),
         ),
         FadeAnimation(
-          2,
-          Container(
+            2,
+            Container(
               width: double.infinity,
-              height: 70,
-              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              height: 90,
+              margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 20),
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
               decoration: BoxDecoration(
                   border: Border.all(color: Colors.pinkAccent, width: 1),
@@ -141,27 +146,36 @@ Future getValidationData() async {
                         offset: Offset(1, 1)),
                   ],
                   color: Colors.white,
-                  borderRadius: const BorderRadius.all(Radius.circular(20))),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const Icon(Icons.phone_android),
-                  Expanded(
-                    child: Container(
-                      margin: const EdgeInsets.only(left: 10),
-                      child: TextField(
-                        controller: phoneController,
-                        maxLines: 1,
-                        decoration: const InputDecoration(
-                          hintText: "Phone Number ",
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
+                  borderRadius: const BorderRadius.all(Radius.circular(10))),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 1),
+                child: InternationalPhoneNumberInput(
+                  onInputChanged: (PhoneNumber number) {
+                    phoneNumber = number.phoneNumber;
+                    print(number.phoneNumber);
+                  },
+                  onInputValidated: (bool value) {
+                    print(value);
+                  },
+                  selectorConfig: SelectorConfig(
+                    selectorType: PhoneInputSelectorType.DIALOG,
                   ),
-                ],
-              )),
-        ),
+                  ignoreBlank: false,
+                  searchBoxDecoration: InputDecoration(fillColor: Colors.white,),
+                  autoValidateMode: AutovalidateMode.onUserInteraction,
+                  initialValue: number,
+                  selectorTextStyle: TextStyle(color: Colors.black),
+                  textFieldController: phoneController,
+                  formatInput: false,
+                  keyboardType: TextInputType.numberWithOptions(
+                      signed: true, decimal: true),
+                  inputBorder: OutlineInputBorder(),
+                  onSaved: (PhoneNumber number) {
+                    print('On Saved: $number');
+                  },
+                ),
+              ),
+            )),
         Spacer(
           flex: 1,
         ),
@@ -169,10 +183,11 @@ Future getValidationData() async {
           onPressed: () async {
             setState(() {
               showLoading = true;
+              
             });
 
             await _auth.verifyPhoneNumber(
-              phoneNumber: phoneController.text,
+              phoneNumber: phoneNumber.toString(),
               verificationCompleted: (phoneAuthCredential) async {
                 setState(() {
                   showLoading = false;
@@ -256,12 +271,6 @@ Future getValidationData() async {
                     smsCode: otpController.text);
 
             signInWithPhoneAuthCredential(phoneAuthCredential);
-            
-            
-            
-
-              
-            
           },
           child: Text("VERIFY"),
         ),
@@ -299,5 +308,14 @@ Future getValidationData() async {
                   : getOtpFormWidget(context),
           padding: const EdgeInsets.all(16),
         ));
+  }
+
+  void getPhoneNumber(String phoneNumber) async {
+    PhoneNumber number =
+        await PhoneNumber.getRegionInfoFromPhoneNumber(phoneNumber, 'US');
+
+    setState(() {
+      this.number = number;
+    });
   }
 }

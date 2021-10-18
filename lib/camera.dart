@@ -17,21 +17,21 @@ class Camera extends StatefulWidget {
 class _CameraState extends State<Camera> {
   FirebaseAuth _auth = FirebaseAuth.instance;
   late String url;
-  bool isUploading = true ;
+  bool isUploading = true;
   var ppId;
   String? profileUrl;
-   
-  File? file;
-  final imagePicker = ImagePicker();
- 
-
+  final picker = ImagePicker();
   
+  final imagePicker = ImagePicker();
+  XFile? file;
+  File? upfile;
 
   Future<String> uploadImageToFirebase(imageFile) async {
     String url = "";
     FirebaseStorage storage = FirebaseStorage.instance;
-    Reference ref = storage.ref().child("pp_$ppId");
-    UploadTask uploadTask = ref.putFile(file!);
+     ppId = Uuid().v4();
+    Reference ref = storage.ref().child("images/$ppId");
+    UploadTask uploadTask = ref.putFile(upfile!);
     await uploadTask.whenComplete(() async {
       url = await ref.getDownloadURL();
     });
@@ -39,13 +39,13 @@ class _CameraState extends State<Camera> {
     return url;
   }
 
-  uploadImage(userId) async {
+  uploadImage(userId) async { 
     setState(() {
       isUploading = true;
     });
     String imageUrl = await uploadImageToFirebase(file);
     setState(() {
-       ppId = Uuid().v4();
+     
       isUploading = false;
       profileUrl = imageUrl;
     });
@@ -61,99 +61,45 @@ class _CameraState extends State<Camera> {
     return Container(
         child: Row(children: <Widget>[
       Padding(
-        padding: const EdgeInsets.fromLTRB(100.0, 0.0, 0.0, 0.0),
+        padding: const EdgeInsets.fromLTRB(50.0, 0.0, 0.0, 0.0),
         child: FloatingActionButton(
-          onPressed: (){
+          onPressed: () async{
             
+              file = await imagePicker.pickImage(source: ImageSource.camera);
+              setState(() {
+                upfile = File(file!.path);
+              });
+
+              print('this issssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss $file');
+
+              
+          
           },
-          child: Icon(Icons.camera_outlined),
+          child: Icon(Icons.camera_outlined), //camera image
           backgroundColor: Colors.pinkAccent,
         ),
       ),
       Padding(
         padding: const EdgeInsets.fromLTRB(50.0, 0.0, 0.0, 0.0),
         child: FloatingActionButton(
-          onPressed: (){
-            file = imagePicker.pickImage(source: ImageSource.camera) as File;
-            setState(() {
-              
-            
-            uploadImageToFirebase(file);
-             String uid = _auth.currentUser!.uid.toString();
-                uploadImage(uid);
-                });
-          },
-          child: Icon(Icons.add_photo_alternate_outlined),
+          onPressed: () {},
+          child: Icon(Icons.add_photo_alternate_outlined), //gallery image
           backgroundColor: Colors.pinkAccent,
         ),
-      )
-    ]));
+      ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(50.0, 0.0, 0.0, 0.0),
+        child: FloatingActionButton(
+            child: Icon(Icons.upload_file),
+            backgroundColor: Colors.pinkAccent,
+            onPressed: () {
+              setState(() {
+                
+                uploadImage(_auth.currentUser!.uid);
+              });
+            }),
+      ),
+    ])
+    );
   }
-
-  FirebaseStorage _storage = FirebaseStorage.instance;
-
-  // Future<Uri> uploadPic(File image) async {
-  //   //Get the file from the image picker and store it
-
-  //   //Create a reference to the location you want to upload to in firebase
-  //   Reference reference = _storage.ref().child("images/");
-
-  //   //Upload the file to firebase
-  //   UploadTask uploadTask = reference.putFile(_image!);
-
-  //   // Waits till the file is uploaded then stores the download url
-  //   final location = await uploadTask.then((res) {
-  //     res.ref.getDownloadURL();
-  //   });
-
-  //   //returns the download url
-  //   return location;
-  // }
-   // Future<String> uploadImageToFirebase(imageFile) async {
-  //   String url = "";
-  //   FirebaseStorage storage = FirebaseStorage.instance;
-  //   Reference ref = storage.ref().child("pp_${_auth.currentUser!.uid.toString()}");
-  //   // UploadTask uploadTask = ref.putFile(image);
-  //   await uploadTask.whenComplete(() async {
-  //     url = await ref.getDownloadURL();
-  //   });
-  //   return url;
-  // }
-
-// }
-  // }
-
-  // Future getImageFromGallery() async {
-  //   final imageGallery =
-  //       await imagePicker.pickImage(source: ImageSource.camera);
-  //   setState(() {
-  //     if (imageGallery!.path != null) {
-  //       _image = File(imageGallery.path);
-  //       final destination = 'files/$_image';
-  //       // uploadPic();
-  //     }
-  //   });
-  // }
-  // Future getImage() async { 
-  //   print('get image is called here');
-  //   FirebaseStorage storage = FirebaseStorage.instance;
-
-  //   File image;
-  //   try {
-  //     image = imagePicker.pickImage(source: ImageSource.camera) as File;
-  //   } catch (e) {
-  //     return;
-  //   }
-
-  //   Reference reference = storage.ref().child("pp_${_auth.currentUser!.uid.toString()}");
-  //   print('this iss                  $reference');
-
-  //   UploadTask uploadTask = reference.putFile(image);
-
-  //   await uploadTask.whenComplete(() async
-  //    {  url = await reference.getDownloadURL();
-  //   });
-  //   return url;
-
-  // }
 }

@@ -1,12 +1,17 @@
 
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import "package:flutter/material.dart";
+import 'package:image_picker/image_picker.dart';
 import 'package:otpfv/camera.dart';
 import 'package:otpfv/database.dart';
 import 'package:otpfv/model.dart';
 import 'package:otpfv/screens/home_screen.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 import 'fade_animation.dart';
 
@@ -18,10 +23,55 @@ class UserCred extends StatefulWidget {
 }
 
 class _UserCredState extends State<UserCred> {
-  FirebaseAuth _auth = FirebaseAuth.instance;
+   FirebaseAuth _auth = FirebaseAuth.instance;
+  late String url;
+  bool isUploading = true;
+  var ppId;
+  String? profileUrl;
+  final picker = ImagePicker();
+  
+  final imagePicker = ImagePicker();
+  XFile? file;
+  File? upfile;
+
+  Future<String> uploadImageToFirebase(imageFile) async {
+    String url = "";
+    FirebaseStorage storage = FirebaseStorage.instance;
+     ppId = Uuid().v4();
+    Reference ref = storage.ref().child("images/$ppId");
+    UploadTask uploadTask = ref.putFile(upfile!);
+    await uploadTask.whenComplete(() async {
+      url = await ref.getDownloadURL();
+    });
+    print('this is             $url');
+    return url;
+  }
+
+  uploadImage(userId) async { 
+    setState(() {
+      isUploading = true;
+    });
+    String imageUrl = await uploadImageToFirebase(file);
+    setState(() {
+     
+      isUploading = false;
+      profileUrl = imageUrl.toString();
+      print('this issssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss $profileUrl');
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Image Uploaded!"),
+      ),
+    );
+  }
+  
 // late UserCredential authCredential;
   final userName = TextEditingController();
   final userEmail = TextEditingController();
+   
+
+  
+  
   final userPhone = TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -46,8 +96,8 @@ class _UserCredState extends State<UserCred> {
                 CircleAvatar(
                   radius: 50,
                   child: ClipOval(
-                    child: Image.asset(
-                      'images/icon.png',
+                    child: Image.network(
+                      '$profileUrl',
                       height: 120,
                       width: 120,
                       fit: BoxFit.cover,
@@ -229,7 +279,49 @@ class _UserCredState extends State<UserCred> {
                             )),
                         Padding(
                           padding: const EdgeInsets.all(20.0),
-                          child: FadeAnimation(2, Camera()),
+                          child: FadeAnimation(2, Container(
+                            child: Row(children: <Widget>[
+      Padding(
+        padding: const EdgeInsets.fromLTRB(50.0, 0.0, 0.0, 0.0),
+        child: FloatingActionButton(
+          onPressed: () async{
+            
+              file = await imagePicker.pickImage(source: ImageSource.camera);
+              setState(() {
+                upfile = File(file!.path);
+              });
+
+              print('this issssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss $file');
+
+              
+          
+          },
+          child: Icon(Icons.camera_outlined), //camera image
+          backgroundColor: Colors.pinkAccent,
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(50.0, 0.0, 0.0, 0.0),
+        child: FloatingActionButton(
+          onPressed: () {},
+          child: Icon(Icons.add_photo_alternate_outlined), //gallery image
+          backgroundColor: Colors.pinkAccent,
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(50.0, 0.0, 0.0, 0.0),
+        child: FloatingActionButton(
+            child: Icon(Icons.upload_file),
+            backgroundColor: Colors.pinkAccent,
+            onPressed: () {
+              setState(() {
+                
+                uploadImage(_auth.currentUser!.uid);
+              });
+            }),
+      ),
+    ])
+                          )),
                         ),
                         FadeAnimation(
                           2,
@@ -244,8 +336,6 @@ class _UserCredState extends State<UserCred> {
                               OurDatabse().createUser(user);
                               final uIdSP = _auth.currentUser!.uid.toString();
                               final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-                              sharedPreferences.setString('email', userEmail.text);
-                              sharedPreferences.setString('phone', userPhone.text);
                               sharedPreferences.setString('uid', uIdSP);
                               Navigator.pushReplacement(
                                   context,
