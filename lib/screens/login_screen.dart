@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import "package:flutter/material.dart";
 import 'package:flutter/services.dart';
@@ -32,11 +33,29 @@ class _LoginScreenState extends State<LoginScreen> {
   String uid = '';
   String finalEmail = '';
   late String verificationId;
+  var _suid;
   late UserCredential authCredential;
   String? phoneNumber;
+  Map? data;
+
+  var doc;
+
   PhoneNumber number = PhoneNumber(isoCode: 'IND');
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   bool showLoading = false;
-  // OurUser _user = OurUser();
+  Future<void> _getdocId() async {
+     var user =  _auth.currentUser!.uid.toString();
+    print('user id 22222222 $user');
+
+    doc =  _firestore.collection('users').get();
+    data = doc.data();
+    
+    
+   
+    print(
+        'this issssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss$doc');
+  }
+
   Future getValidationData() async {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
@@ -59,18 +78,28 @@ class _LoginScreenState extends State<LoginScreen> {
 
       setState(() {
         showLoading = false;
-      });
+        _getdocId()
+;      });
       final SharedPreferences sharedPreferences =
           await SharedPreferences.getInstance();
       final uisp = sharedPreferences.getString('uid');
-
-      print(
-          'uid isssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss $uisp');
+      final userSp = sharedPreferences.getString('userName');
+        var valueId = _getdocId();
+        print('this 55555555555555555555555555 $valueId');
+      
+      print('this is ssssssssssssssssssssssssssssssssss username $userSp');
+      // for (int i = 0; i <= ; i++) {
+      //   if (doc![i] == _auth.currentUser!.uid) {
+      //     _suid = doc![i];
+      //   } else {
+      //     _suid = null;
+      //   }
+      // }
       if (authCredential.user != null &&
-          _auth.currentUser!.uid.toString() == uisp) {
+          _auth.currentUser!.uid.toString() == _suid) {
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => HomeScreen()));
-      } else if (authCredential.user != null) {
+      } else if (authCredential.user != null && _suid == null) {
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => UserCred()));
       }
@@ -161,7 +190,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     selectorType: PhoneInputSelectorType.DIALOG,
                   ),
                   ignoreBlank: false,
-                  searchBoxDecoration: InputDecoration(fillColor: Colors.white,),
+                  searchBoxDecoration: InputDecoration(
+                    fillColor: Colors.white,
+                  ),
                   autoValidateMode: AutovalidateMode.onUserInteraction,
                   initialValue: number,
                   selectorTextStyle: TextStyle(color: Colors.black),
@@ -183,7 +214,6 @@ class _LoginScreenState extends State<LoginScreen> {
           onPressed: () async {
             setState(() {
               showLoading = true;
-              
             });
 
             await _auth.verifyPhoneNumber(
@@ -224,6 +254,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   getOtpFormWidget(context) {
+    
     return Column(
       children: [
         Image.asset(
@@ -242,19 +273,7 @@ class _LoginScreenState extends State<LoginScreen> {
           flex: 1,
         ),
         TextField(
-          //         length: 6,
-          // width: MediaQuery.of(context).size.width,
-
-          // fieldWidth: 50,
-          // style: TextStyle(
-          //   fontSize: 17
-          // ),
-          // textFieldAlignment: MainAxisAlignment.spaceAround,
-          // fieldStyle: FieldStyle.box,
-          // onCompleted: (pin) {
-          //   pinAuth = pin;
-          //   print("Completed: " + pin);
-          // },
+          
           controller: otpController,
           decoration: InputDecoration(
             hintText: "Enter OTP",
@@ -282,6 +301,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
+  
 
   @override
   Widget build(BuildContext context) {

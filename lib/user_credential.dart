@@ -29,16 +29,17 @@ class _UserCredState extends State<UserCred> {
   var ppId;
   String? profileUrl;
   final picker = ImagePicker();
-  
+  var imageId ;
   final imagePicker = ImagePicker();
   XFile? file;
-  File? upfile;
+  File? upfile; 
 
   Future<String> uploadImageToFirebase(imageFile) async {
+    var uid = _auth.currentUser!.uid;
     String url = "";
     FirebaseStorage storage = FirebaseStorage.instance;
      ppId = Uuid().v4();
-    Reference ref = storage.ref().child("images/$ppId");
+    Reference ref = storage.ref().child("images/$uid");
     UploadTask uploadTask = ref.putFile(upfile!);
     await uploadTask.whenComplete(() async {
       url = await ref.getDownloadURL();
@@ -53,7 +54,7 @@ class _UserCredState extends State<UserCred> {
     });
     String imageUrl = await uploadImageToFirebase(file);
     setState(() {
-     
+       imageId =  ppId;
       isUploading = false;
       profileUrl = imageUrl.toString();
       print('this issssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss $profileUrl');
@@ -96,12 +97,12 @@ class _UserCredState extends State<UserCred> {
                 CircleAvatar(
                   radius: 50,
                   child: ClipOval(
-                    child: Image.network(
+                    child: profileUrl != null ?Image.network(
                       '$profileUrl',
                       height: 120,
                       width: 120,
                       fit: BoxFit.cover,
-                    ),
+                    ): Image.asset('images/clock.png'),
                   ),
                 ),
               ),
@@ -337,6 +338,7 @@ class _UserCredState extends State<UserCred> {
                               final uIdSP = _auth.currentUser!.uid.toString();
                               final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
                               sharedPreferences.setString('uid', uIdSP);
+                              sharedPreferences.setString('userName', userName.toString());
                               Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
