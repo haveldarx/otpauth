@@ -1,9 +1,14 @@
+
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import "package:flutter/material.dart";
 import 'package:flutter/services.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:otp_text_field/otp_field.dart';
+import 'package:otp_text_field/otp_text_field.dart';
+import 'package:otp_text_field/style.dart';
 import 'package:otpfv/database.dart';
 import 'package:otpfv/model.dart';
 import 'package:otpfv/screens/home_screen.dart';
@@ -40,6 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Map? data;
   var _phone;
   var doc;
+  var otp;
   bool userIsLoggedIn = false;
   var obtainedUrl;
   PhoneNumber number = PhoneNumber(isoCode: 'IND');
@@ -280,12 +286,25 @@ class _LoginScreenState extends State<LoginScreen> {
         Spacer(
           flex: 1,
         ),
-        TextField(
-          
-          controller: otpController,
-          decoration: InputDecoration(
-            hintText: "Enter OTP",
-          ),
+        OTPTextField(
+          length: 6,
+          width: MediaQuery.of(context).size.width,
+          textFieldAlignment: MainAxisAlignment.spaceAround,
+          fieldWidth: 55,
+          style: TextStyle(color: Colors.black),
+          fieldStyle: FieldStyle.box,
+          outlineBorderRadius: 15,
+          otpFieldStyle:OtpFieldStyle(
+            backgroundColor: Colors.white,
+            borderColor: Colors.black
+          ) ,
+          onChanged: (pin) {
+            print("Changed: " + pin);
+          },
+          onCompleted: (pin) {
+            print("Completed: " + pin);
+            otp = pin;
+          },
         ),
         SizedBox(
           height: 16,
@@ -295,7 +314,7 @@ class _LoginScreenState extends State<LoginScreen> {
             PhoneAuthCredential phoneAuthCredential =
                 PhoneAuthProvider.credential(
                     verificationId: verificationId,
-                    smsCode: otpController.text);
+                    smsCode: otp);
 
             signInWithPhoneAuthCredential(phoneAuthCredential);
           },
