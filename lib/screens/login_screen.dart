@@ -75,10 +75,8 @@ class _LoginScreenState extends State<LoginScreen> {
         showLoading = false;
         
 ;      });
-      final SharedPreferences sharedPreferences =
-          await SharedPreferences.getInstance();
-      final obtained = sharedPreferences.getString('uid');
-      final userSp = sharedPreferences.getString('phone');
+      
+      
         
       
     
