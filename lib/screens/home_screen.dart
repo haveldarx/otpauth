@@ -1,22 +1,24 @@
+
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:otpfv/screens/login_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
+
 
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
+   final Future<String> _calculation = Future<String>.delayed(
+    const Duration(seconds: 2),
+    () => 'Data Loaded',
+  );
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  @override
-  void initState() {
-    super.initState();
-    _getUserName();
-  }
+  
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   Map? data;
@@ -26,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   var _phone;
   var _email;
   final _auth = FirebaseAuth.instance;
-  Future<void> _getUserName() async {
+  Future _getUserName() async {
     print(
         'user id 222222222222222222222222222222222222222222222222222222222222222222222222222 ${_auth.currentUser!.uid}');
     var ppId = _auth.currentUser!.uid;
@@ -42,21 +44,40 @@ class _HomeScreenState extends State<HomeScreen> {
           .collection('users')
           .doc(_auth.currentUser!.uid)
           .get();
+          
       data = doc.data();
       _userName = data?['fullname'];
       _phone = data?['phone'];
       _email = data?['email'];
+      return doc.data();
     } catch (e) {
       print(e.toString());
     }
+    
+  }
+  @override
+  void initState() {
+    super.initState();
+    
+    setState(() {
+      _getUserName();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        drawer: Drawer(
+        
+        drawer:  FutureBuilder(
+          future: _getUserName(),
+          builder: (BuildContext context ,AsyncSnapshot snapshot){
+            
+            if (snapshot.hasData){
+              return Drawer(
+              
           child: ListView(
             children: <Widget>[
               DrawerHeader(
@@ -91,7 +112,16 @@ class _HomeScreenState extends State<HomeScreen> {
               )
             ],
           ),
-        ),
+        
+               );
+               
+                }
+                else {
+                  return CircularProgressIndicator();
+                }
+          }
+          ),
+          
         appBar: AppBar(
           title: Text('SOSKRU'),
           centerTitle: true,
@@ -116,6 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
             final SharedPreferences sharedPreferences =
                 await SharedPreferences.getInstance();
             sharedPreferences.remove('uid');
+            
           },
           child: Icon(Icons.logout),
         ),

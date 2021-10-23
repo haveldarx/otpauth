@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import "package:flutter/material.dart";
 import 'package:flutter/services.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
@@ -37,33 +38,27 @@ class _LoginScreenState extends State<LoginScreen> {
   late UserCredential authCredential;
   String? phoneNumber;
   Map? data;
-
+  var _phone;
   var doc;
-
+  bool userIsLoggedIn = false;
+  var obtainedUrl;
   PhoneNumber number = PhoneNumber(isoCode: 'IND');
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   bool showLoading = false;
-  Future<void> _getdocId() async {
-     var user =  _auth.currentUser!.uid.toString();
-    print('user id 22222222 $user');
+  
+  // Future<void> _getdocId() async {
+  //    var user =  _auth.currentUser!.uid.toString();
+  //   print('user id 22222222 $user');
 
-    doc =  _firestore.collection('users').get();
-    data = doc.data();
-    
-    
-   
-    print(
-        'this issssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss$doc');
-  }
+  //    QuerySnapshot doc = await  _firestore.collection('users').get();
+  //   for (int i = 0; i < doc.docs.length; i++){
+  //    var a = doc.docs[i].data();
+      //   print(
+  //       'this issssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss 1111111111111111111111111111111111 $a  ');
+  //  } }
 
-  Future getValidationData() async {
-    final SharedPreferences sharedPreferences =
-        await SharedPreferences.getInstance();
-    var obtainedEmail = sharedPreferences.getString('email');
-    setState(() {
-      finalEmail = obtainedEmail.toString();
-    });
-  }
+  
+  
 
   void signInWithPhoneAuthCredential(
       PhoneAuthCredential phoneAuthCredential) async {
@@ -78,28 +73,42 @@ class _LoginScreenState extends State<LoginScreen> {
 
       setState(() {
         showLoading = false;
-        _getdocId()
+        
 ;      });
       final SharedPreferences sharedPreferences =
           await SharedPreferences.getInstance();
-      final uisp = sharedPreferences.getString('uid');
-      final userSp = sharedPreferences.getString('userName');
-        var valueId = _getdocId();
-        print('this 55555555555555555555555555 $valueId');
+      final obtained = sharedPreferences.getString('uid');
+      final userSp = sharedPreferences.getString('phone');
+        
       
-      print('this is ssssssssssssssssssssssssssssssssss username $userSp');
-      // for (int i = 0; i <= ; i++) {
-      //   if (doc![i] == _auth.currentUser!.uid) {
-      //     _suid = doc![i];
-      //   } else {
-      //     _suid = null;
-      //   }
-      // }
+    
+
+    
+    
+    try {
+       await _firestore
+          .collection('users')
+          .doc(_auth.currentUser!.uid)
+          .get().then((value) {
+            if (value.exists){
+                userIsLoggedIn = true;
+            }
+            });
+
+      
+    } catch (e) {
+      print(e.toString());
+    }
+  
+        
+      
+      print('this is ssssssssssssssssssssssssssssssssss user is logged in $userIsLoggedIn');
+   
       if (authCredential.user != null &&
-          _auth.currentUser!.uid.toString() == _suid) {
+          userIsLoggedIn) {
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => HomeScreen()));
-      } else if (authCredential.user != null && _suid == null) {
+      } else if (authCredential.user != null  ) {
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => UserCred()));
       }
@@ -210,7 +219,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Spacer(
           flex: 1,
         ),
-        TextButton(
+        ElevatedButton(
           onPressed: () async {
             setState(() {
               showLoading = true;
@@ -241,6 +250,7 @@ class _LoginScreenState extends State<LoginScreen> {
               codeAutoRetrievalTimeout: (verificationId) async {},
             );
           },
+          
           child: Text(
             "SEND",
             style: TextStyle(fontSize: 20),
@@ -282,7 +292,7 @@ class _LoginScreenState extends State<LoginScreen> {
         SizedBox(
           height: 16,
         ),
-        TextButton(
+        ElevatedButton(
           onPressed: () async {
             PhoneAuthCredential phoneAuthCredential =
                 PhoneAuthProvider.credential(

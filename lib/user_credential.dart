@@ -32,10 +32,13 @@ class _UserCredState extends State<UserCred> {
   var imageId ;
   final imagePicker = ImagePicker();
   XFile? file;
-  File? upfile; 
+  File? upfile;
+  var uid;
+  
+ 
 
   Future<String> uploadImageToFirebase(imageFile) async {
-    var uid = _auth.currentUser!.uid;
+     uid = _auth.currentUser!.uid;
     String url = "";
     FirebaseStorage storage = FirebaseStorage.instance;
      ppId = Uuid().v4();
@@ -329,15 +332,16 @@ class _UserCredState extends State<UserCred> {
                           ElevatedButton(
                             onPressed: () async {
                               OurUser user = OurUser(
-                              uId: _auth.currentUser!.uid.toString(),
+                              uId: uid.toString(),
                                 email: userEmail.text,
                                 phoneNumber: userPhone.text,
                                 fullName: userName.text,
                               );
                               OurDatabse().createUser(user);
-                              final uIdSP = _auth.currentUser!.uid.toString();
+                              
                               final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-                              sharedPreferences.setString('uid', uIdSP);
+                              sharedPreferences.setString('uid', uid);
+                              sharedPreferences.setString('phone', userPhone.toString());
                               sharedPreferences.setString('userName', userName.toString());
                               Navigator.pushReplacement(
                                   context,
