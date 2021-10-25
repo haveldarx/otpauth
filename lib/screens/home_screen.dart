@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:otpfv/screens/login_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:otpfv/screens/updater_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -109,6 +110,15 @@ class _HomeScreenState extends State<HomeScreen> {
               ListTile(
                 leading: Text('Email'),
                 title: Text('$_email'),
+              ),
+              ListTile(
+                leading: Text('Update details'),
+                onTap:() {
+                   Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => UpdateCred()));
+                },
               )
             ],
           ),
