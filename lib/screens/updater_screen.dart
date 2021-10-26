@@ -23,7 +23,7 @@ class UpdateCred extends StatefulWidget {
 }
 
 class _UpdateCredState extends State<UpdateCred> {
-   FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseAuth _auth = FirebaseAuth.instance;
   late String url;
   bool isUploading = true;
   var ppId;
@@ -34,8 +34,15 @@ class _UpdateCredState extends State<UpdateCred> {
   XFile? file;
   File? upfile;
   var uid;
+  var useremail;
+  var username;
   
- 
+  
+  _getUsershredreferences () async{
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    useremail = sharedPreferences.getString('useremail');
+    username = sharedPreferences.getString('username');
+  }
 
   Future<String> uploadImageToFirebase(imageFile) async {
      uid = _auth.currentUser!.uid;
@@ -72,6 +79,12 @@ class _UpdateCredState extends State<UpdateCred> {
 // late UserCredential authCredential;
   final userName = TextEditingController();
   final userEmail = TextEditingController();
+  @override
+  initState (){
+    super.initState();
+    _getUsershredreferences();
+
+  }
    
 
   
@@ -168,11 +181,12 @@ class _UpdateCredState extends State<UpdateCred> {
                                   Expanded(
                                     child: Container(
                                       margin: const EdgeInsets.only(left: 10),
-                                      child: TextField(
+                                      child: TextFormField(
                                         controller: userName,
                                         maxLines: 1,
+                                        initialValue: username,
                                         decoration: const InputDecoration(
-                                          hintText: "Name ",
+                                          
                                           border: InputBorder.none,
                                         ),
                                       ),
@@ -212,6 +226,7 @@ class _UpdateCredState extends State<UpdateCred> {
                                       child: TextFormField(
                                         controller: userEmail,
                                         maxLines: 1,
+                                        initialValue: useremail,
                                         decoration: const InputDecoration(
                                           hintText: " Email",
                                           border: InputBorder.none,
@@ -222,47 +237,7 @@ class _UpdateCredState extends State<UpdateCred> {
                                 ],
                               )),
                         ),
-                        FadeAnimation(
-                          2,
-                          Container(
-                              width: double.infinity,
-                              height: 70,
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 10),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 15, vertical: 5),
-                              decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: Colors.redAccent, width: 1),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                        color: Colors.redAccent,
-                                        blurRadius: 10,
-                                        offset: Offset(1, 1)),
-                                  ],
-                                  color: Colors.white,
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(20))),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  const Icon(Icons.phone_android),
-                                  Expanded(
-                                    child: Container(
-                                      margin: const EdgeInsets.only(left: 10),
-                                      child: TextField(
-                                        controller: userPhone,
-                                        maxLines: 1,
-                                        decoration: const InputDecoration(
-                                          hintText: "Phone Number ",
-                                          border: InputBorder.none,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              )),
-                        ),
+                        
                         const SizedBox(
                           height: 20,
                         ),

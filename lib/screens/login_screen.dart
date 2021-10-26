@@ -42,13 +42,14 @@ class _LoginScreenState extends State<LoginScreen> {
   var _suid;
   late UserCredential authCredential;
   String? phoneNumber;
+  
   Map? data;
   var _phone;
   var doc;
   var otp;
   bool userIsLoggedIn = false;
   var obtainedUrl;
-  PhoneNumber number = PhoneNumber(isoCode: 'IND');
+  PhoneNumber number = PhoneNumber(isoCode: 'IN');
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   bool showLoading = false;
   
@@ -135,6 +136,8 @@ class _LoginScreenState extends State<LoginScreen> {
       _user.uId = uid;
       _user.email = authCredential.user!.uid;
       _user.fullName = fullName;
+      
+                      
       String _returnString = await OurDatabse().createUser(_user);
       if (_returnString == "success") retVal = "success";
     } on PlatformException catch (e) {
@@ -195,10 +198,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   onInputChanged: (PhoneNumber number) {
                     phoneNumber = number.phoneNumber;
                     print(number.phoneNumber);
+                    
                   },
                   onInputValidated: (bool value) {
                     print(value);
                   },
+                  
                   selectorConfig: SelectorConfig(
                     selectorType: PhoneInputSelectorType.DIALOG,
                   ),
@@ -216,6 +221,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   inputBorder: OutlineInputBorder(),
                   onSaved: (PhoneNumber number) {
                     print('On Saved: $number');
+                    setState(() async {
+                     
+
+                    });
                   },
                 ),
               ),
@@ -225,14 +234,16 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         ElevatedButton(
           onPressed: () async {
-            setState(() {
+            setState(()  {
               showLoading = true;
+               
             });
 
             await _auth.verifyPhoneNumber(
               phoneNumber: phoneNumber.toString(),
               verificationCompleted: (phoneAuthCredential) async {
                 setState(() {
+                  
                   showLoading = false;
                 });
                 signInWithPhoneAuthCredential(phoneAuthCredential);

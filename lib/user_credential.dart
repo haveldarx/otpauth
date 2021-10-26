@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -23,25 +22,24 @@ class UserCred extends StatefulWidget {
 }
 
 class _UserCredState extends State<UserCred> {
-   FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseAuth _auth = FirebaseAuth.instance;
   late String url;
   bool isUploading = true;
   var ppId;
   String? profileUrl;
   final picker = ImagePicker();
-  var imageId ;
+  var imageId;
   final imagePicker = ImagePicker();
   XFile? file;
   File? upfile;
   var uid;
-  
- 
+  bool imageUploaded = false;
 
   Future<String> uploadImageToFirebase(imageFile) async {
-     uid = _auth.currentUser!.uid;
+    uid = _auth.currentUser!.uid;
     String url = "";
     FirebaseStorage storage = FirebaseStorage.instance;
-     ppId = Uuid().v4();
+    ppId = Uuid().v4();
     Reference ref = storage.ref().child("images/$uid");
     UploadTask uploadTask = ref.putFile(upfile!);
     await uploadTask.whenComplete(() async {
@@ -51,16 +49,18 @@ class _UserCredState extends State<UserCred> {
     return url;
   }
 
-  uploadImage(userId) async { 
+  uploadImage(userId) async {
     setState(() {
       isUploading = true;
     });
     String imageUrl = await uploadImageToFirebase(file);
     setState(() {
-       imageId =  ppId;
+      imageId = ppId;
       isUploading = false;
+      imageUploaded = true;
       profileUrl = imageUrl.toString();
-      print('this issssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss $profileUrl');
+      print(
+          'this issssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss $profileUrl');
     });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -68,14 +68,11 @@ class _UserCredState extends State<UserCred> {
       ),
     );
   }
-  
+
 // late UserCredential authCredential;
   final userName = TextEditingController();
   final userEmail = TextEditingController();
-   
 
-  
-  
   final userPhone = TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -100,12 +97,14 @@ class _UserCredState extends State<UserCred> {
                 CircleAvatar(
                   radius: 50,
                   child: ClipOval(
-                    child: profileUrl != null ?Image.network(
-                      '$profileUrl',
-                      height: 120,
-                      width: 120,
-                      fit: BoxFit.cover,
-                    ): Image.asset('images/clock.png'),
+                    child: profileUrl != null
+                        ? Image.network(
+                            '$profileUrl',
+                            height: 120,
+                            width: 120,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.asset('images/clock.png'),
                   ),
                 ),
               ),
@@ -222,47 +221,6 @@ class _UserCredState extends State<UserCred> {
                                 ],
                               )),
                         ),
-                        FadeAnimation(
-                          2,
-                          Container(
-                              width: double.infinity,
-                              height: 70,
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 10),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 15, vertical: 5),
-                              decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: Colors.pinkAccent, width: 1),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                        color: Colors.pinkAccent,
-                                        blurRadius: 10,
-                                        offset: Offset(1, 1)),
-                                  ],
-                                  color: Colors.white,
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(20))),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  const Icon(Icons.phone_android),
-                                  Expanded(
-                                    child: Container(
-                                      margin: const EdgeInsets.only(left: 10),
-                                      child: TextField(
-                                        controller: userPhone,
-                                        maxLines: 1,
-                                        decoration: const InputDecoration(
-                                          hintText: "Phone Number ",
-                                          border: InputBorder.none,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              )),
-                        ),
                         const SizedBox(
                           height: 20,
                         ),
@@ -283,70 +241,90 @@ class _UserCredState extends State<UserCred> {
                             )),
                         Padding(
                           padding: const EdgeInsets.all(20.0),
-                          child: FadeAnimation(2, Container(
-                            child: Row(children: <Widget>[
-      Padding(
-        padding: const EdgeInsets.fromLTRB(50.0, 0.0, 0.0, 0.0),
-        child: FloatingActionButton(
-          onPressed: () async{
-            
-              file = await imagePicker.pickImage(source: ImageSource.camera);
-              setState(() {
-                upfile = File(file!.path);
-              });
+                          child: FadeAnimation(
+                              2,
+                              Container(
+                                  child: Row(children: <Widget>[
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                      50.0, 0.0, 0.0, 0.0),
+                                  child: FloatingActionButton(
+                                    onPressed: () async {
+                                      file = await imagePicker.pickImage(
+                                          source: ImageSource.camera);
+                                      setState(() {
+                                        upfile = File(file!.path);
+                                      });
 
-              print('this issssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss $file');
+                                      print(
+                                          'this issssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss $file');
+                                    },
+                                    child: Icon(
+                                        Icons.camera_outlined), //camera image
+                                    backgroundColor: Colors.pinkAccent,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                      50.0, 0.0, 0.0, 0.0),
+                                  child: FloatingActionButton(
+                                    onPressed: () async {
+                                      file = await imagePicker.pickImage(
+                                          source: ImageSource.gallery);
+                                      setState(() {
+                                        upfile = File(file!.path);
+                                      });
 
-              
-          
-          },
-          child: Icon(Icons.camera_outlined), //camera image
-          backgroundColor: Colors.pinkAccent,
-        ),
-      ),
-      Padding(
-        padding: const EdgeInsets.fromLTRB(50.0, 0.0, 0.0, 0.0),
-        child: FloatingActionButton(
-          onPressed: () {},
-          child: Icon(Icons.add_photo_alternate_outlined), //gallery image
-          backgroundColor: Colors.pinkAccent,
-        ),
-      ),
-      Padding(
-        padding: const EdgeInsets.fromLTRB(50.0, 0.0, 0.0, 0.0),
-        child: FloatingActionButton(
-            child: Icon(Icons.upload_file),
-            backgroundColor: Colors.pinkAccent,
-            onPressed: () {
-              setState(() {
-                
-                uploadImage(_auth.currentUser!.uid);
-              });
-            }),
-      ),
-    ])
-                          )),
+                                      print(
+                                          'this issssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss $file');
+                                    },
+                                    child: Icon(Icons
+                                        .add_photo_alternate_outlined), //gallery image
+                                    backgroundColor: Colors.pinkAccent,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                      50.0, 0.0, 0.0, 0.0),
+                                  child: FloatingActionButton(
+                                      child: Icon(Icons.upload_file),
+                                      backgroundColor: Colors.pinkAccent,
+                                      onPressed: () {
+                                        setState(() {
+                                          uploadImage(_auth.currentUser!.uid);
+                                        });
+                                      }),
+                                ),
+                              ]))),
                         ),
                         FadeAnimation(
                           2,
                           ElevatedButton(
                             onPressed: () async {
+                              if(imageUploaded){
+                              final SharedPreferences sharedPreferences =
+                                  await SharedPreferences.getInstance();
+                              var phone =
+                                  sharedPreferences.getString('phoneNumber');
                               OurUser user = OurUser(
-                              uId: uid.toString(),
+                                uId: uid.toString(),
                                 email: userEmail.text,
-                                phoneNumber: userPhone.text,
+                                phoneNumber: phone,
                                 fullName: userName.text,
                               );
                               OurDatabse().createUser(user);
-                              
-                              final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
                               sharedPreferences.setString('uid', uid);
-                              sharedPreferences.setString('phone', userPhone.toString());
-                              sharedPreferences.setString('userName', userName.toString());
+                              sharedPreferences.setString('username', userName.text);
+                              sharedPreferences.setString('useremail', userEmail.text);
+                              
                               Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => HomeScreen()));
+                            }else{
+                              
+                            }
                             },
                             style: ElevatedButton.styleFrom(
                                 onPrimary: Colors.redAccent[400],

@@ -82,24 +82,37 @@ class _CameraState extends State<Camera> {
       Padding(
         padding: const EdgeInsets.fromLTRB(50.0, 0.0, 0.0, 0.0),
         child: FloatingActionButton(
-          onPressed: () {},
+          onPressed: () async{
+            file = await imagePicker.pickImage(source: ImageSource.gallery);
+              setState(() {
+                upfile = File(file!.path);
+              });
+
+              print('this issssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss $file');
+
+          },
           child: Icon(Icons.add_photo_alternate_outlined), //gallery image
           backgroundColor: Colors.pinkAccent,
         ),
       ),
+      
       Padding(
         padding: const EdgeInsets.fromLTRB(50.0, 0.0, 0.0, 0.0),
         child: FloatingActionButton(
             child: Icon(Icons.upload_file),
             backgroundColor: Colors.pinkAccent,
+            
             onPressed: () {
               setState(() {
                 
                 uploadImage(_auth.currentUser!.uid);
+                
               });
             }),
       ),
-    ])
+    ]
+    ),
+    
     );
   }
 }
